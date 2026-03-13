@@ -9,5 +9,17 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     }
-  }
+  },
+  server: {
+    allowedHosts: [
+      'check-in.career-seekers.ru',
+    ],
+    host: '0.0.0.0',
+    port: 5273,
+    hmr: {
+      host: 'check-in.career-seekers.ru',
+      protocol: 'wss',
+      clientPort: 443,
+    }
+  },
 })

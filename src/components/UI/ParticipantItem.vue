@@ -24,6 +24,14 @@ export default {
       localCount: this.count
     }
   },
+  watch: {
+    isHere(newVal) {
+      this.isHereLocal = newVal;
+    },
+    count(newVal) {
+      this.localCount = newVal;
+    }
+  },
   methods: {
     change() {
       this.$emit('checkboxChange', this.isHereLocal)
@@ -185,11 +193,11 @@ export default {
   align-items: center;
   width: 100%;
   gap: 1rem;
+}
 
-  .checkbox-input {
-    margin-right: 35%;
-    width: 1.25rem;
-  }
+.input-wrapper .checkbox-input {
+  margin-right: 35%;
+  width: 1.25rem;
 }
 
 .ok-button {

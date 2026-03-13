@@ -4,6 +4,7 @@ import tseslint from 'typescript-eslint'
 import * as pluginVue from 'eslint-plugin-vue'
 import * as globals from 'globals'
 import * as vueParser from 'vue-eslint-parser'
+import { importX } from "eslint-plugin-import-x";
 
 export default [
   {
@@ -18,6 +19,34 @@ export default [
   },
 
   js.configs.recommended,
+
+  {
+    plugins: {
+      'import-x': importX
+    },
+    settings: {
+      'import-x/resolver': {
+        typescript: true, // используем TypeScript resolver
+        node: true
+      },
+      'import-x/extensions': ['.js', '.ts', '.vue', '.jsx', '.tsx']
+    },
+    rules: {
+      'import-x/extensions': ['error', 'ignorePackages', {
+        js: 'never',
+        jsx: 'never',
+        ts: 'never',
+        tsx: 'never',
+        vue: 'never',
+        json: 'always'
+      }],
+      'import-x/order': ['error', {
+        groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
+        'newlines-between': 'always',
+        alphabetize: { order: 'asc', caseInsensitive: true }
+      }]
+    }
+  },
 
   ...tseslint.configs.recommended.map(conf => ({
     ...conf,

@@ -3,15 +3,15 @@
 
 <template>
   <div class="app-container">
-    <div
+    <router-link
       class="logo"
-      @click="$router.push('/')"
+      to="/"
     >
       <img
         src="./assets/logo.png"
         alt="Логотип"
       >
-    </div>
+    </router-link>
     <router-view />
   </div>
 </template>

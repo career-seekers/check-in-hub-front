@@ -12,12 +12,9 @@ export default defineComponent({
   name: "EventsList",
   components: { EventItem },
   data() {
-    const isMobile = useDevice().isMobile;
-    const eventResolver = new EventResolver();
-
     return {
-      isMobile,
-      eventResolver,
+      isMobile: useDevice(),
+      eventResolver: new EventResolver(),
       events: [] as EventResponseDto[]
     }
   },
@@ -63,8 +60,8 @@ export default defineComponent({
       </div>
     </div>
     <EventItem
-      v-for="(event, index) in events"
-      :key="index"
+      v-for="event in events"
+      :key="event.id"
       class="event-item"
       @click="$router.push(`/participants/${event.id}`)"
     >

@@ -7,56 +7,55 @@ import { useDevice } from "@/utils/device-detector.util";
 export default defineComponent({
   name: "EventItem",
   data() {
-    const isMobile = useDevice().isMobile;
-    return { isMobile };
+    return {
+      isMobile: useDevice()
+    };
   },
 })
 </script>
 
 <template>
   <div
-    v-if="!isMobile"
-    class="wrapper-desktop wrapper"
+    v-bind="$attrs"
+    :class="['wrapper', isMobile ? 'wrapper-mobile' : 'wrapper-desktop']"
   >
-    <div class="block">
-      <slot name="name">
-        Название мероприятия
-      </slot>
-    </div>
-    <div class="block">
-      <slot name="time">
-        Время проведения
-      </slot>
-    </div>
-    <div class="block">
-      <slot name="classroom">
-        Кабинет
-      </slot>
-    </div>
-  </div>
-
-  <div
-    v-else
-    class="wrapper-mobile wrapper"
-  >
-    <div class="block">
-      <strong>Название: </strong>
-      <slot name="name">
-        Имя мероприятия
-      </slot>
-    </div>
-    <div class="block">
-      <strong>Время: </strong>
-      <slot name="time">
-        Время
-      </slot>
-    </div>
-    <div class="block">
-      <strong>Кабинет: </strong>
-      <slot name="classroom">
-        000
-      </slot>
-    </div>
+    <template v-if="!isMobile">
+      <div class="block">
+        <slot name="name">
+          Название мероприятия
+        </slot>
+      </div>
+      <div class="block">
+        <slot name="time">
+          Время проведения
+        </slot>
+      </div>
+      <div class="block">
+        <slot name="classroom">
+          Кабинет
+        </slot>
+      </div>
+    </template>
+    <template v-else>
+      <div class="block">
+        <strong>Название: </strong>
+        <slot name="name">
+          Имя мероприятия
+        </slot>
+      </div>
+      <div class="block">
+        <strong>Время: </strong>
+        <slot name="time">
+          Время
+        </slot>
+      </div>
+      <div class="block">
+        <strong>Кабинет: </strong>
+        <slot name="classroom">
+          000
+        </slot>
+      </div>
+    </template>
   </div>
 </template>
 

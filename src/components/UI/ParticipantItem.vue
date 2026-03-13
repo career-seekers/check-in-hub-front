@@ -18,17 +18,14 @@ export default {
   },
   emits: ['checkboxChange', 'countChange'],
   data() {
-    const isMobile = useDevice().isMobile;
-
     return {
-      isMobile,
+      isMobile: useDevice(),
       isHereLocal: this.isHere,
       localCount: this.count
     }
   },
   methods: {
     change() {
-      this.isHereLocal = !this.isHereLocal;
       this.$emit('checkboxChange', this.isHereLocal)
     },
     changeCount() {
@@ -40,79 +37,31 @@ export default {
 
 <template>
   <div
-    v-if="!isMobile"
-    class="wrapper-desktop wrapper"
+    v-bind="$attrs"
+    :class="['wrapper', isMobile ? 'wrapper-mobile' : 'wrapper-desktop']"
   >
-    <div class="block">
-      <slot name="name">
-        Имя
-      </slot>
-    </div>
-    <div class="block">
-      <slot name="competence">
-        Компетенция
-      </slot>
-    </div>
-    <div class="block">
-      <slot name="age">
-        Возраст
-      </slot>
-    </div>
-    <input
-      v-model="isHereLocal"
-      class="checkbox-input"
-      type="checkbox"
-      @click="change"
-    >
-    <input
-      v-model.number="localCount"
-      class="checkbox-input"
-      type="number"
-      :min="0"
-    >
-    <div class="block">
-      <p
-        class="ok-button"
-        @click="changeCount"
-      >
-        OK
-      </p>
-    </div>
-  </div>
-
-  <div
-    v-else
-    class="wrapper-mobile wrapper"
-  >
-    <div class="block">
-      <strong> Имя посетителя: </strong>
-      <slot name="name">
-        Имя
-      </slot>
-    </div>
-    <div class="block">
-      <strong> Компетенция: </strong>
-      <slot name="competence">
-        Компетенция
-      </slot>
-    </div>
-    <div class="block">
-      <strong> Возрастная категория: </strong>
-      <slot name="age">
-        Возраст
-      </slot>
-    </div>
-    <div class="input-wrapper">
-      <p><strong> Отметить посещение </strong></p>
+    <template v-if="!isMobile">
+      <div class="block">
+        <slot name="name">
+          Имя
+        </slot>
+      </div>
+      <div class="block">
+        <slot name="competence">
+          Компетенция
+        </slot>
+      </div>
+      <div class="block">
+        <slot name="age">
+          Возраст
+        </slot>
+      </div>
       <input
         v-model="isHereLocal"
         class="checkbox-input"
         type="checkbox"
-        @click="change"
+        @change="change"
       >
-    </div>
-    <div class="input-wrapper-grid no-margin">
-      <p><strong> Кол-во гостей </strong></p>
       <input
         v-model.number="localCount"
         class="checkbox-input"
@@ -120,14 +69,60 @@ export default {
         :min="0"
       >
       <div class="block">
-        <p
+        <button
           class="ok-button"
           @click="changeCount"
         >
           OK
-        </p>
+        </button>
       </div>
-    </div>
+    </template>
+    <template v-else>
+      <div class="block">
+        <strong> Имя посетителя: </strong>
+        <slot name="name">
+          Имя
+        </slot>
+      </div>
+      <div class="block">
+        <strong> Компетенция: </strong>
+        <slot name="competence">
+          Компетенция
+        </slot>
+      </div>
+      <div class="block">
+        <strong> Возрастная категория: </strong>
+        <slot name="age">
+          Возраст
+        </slot>
+      </div>
+      <div class="input-wrapper">
+        <p><strong> Отметить посещение </strong></p>
+        <input
+          v-model="isHereLocal"
+          class="checkbox-input"
+          type="checkbox"
+          @change="change"
+        >
+      </div>
+      <div class="input-wrapper-grid no-margin">
+        <p><strong> Кол-во гостей </strong></p>
+        <input
+          v-model.number="localCount"
+          class="checkbox-input"
+          type="number"
+          :min="0"
+        >
+        <div class="block">
+          <button
+            class="ok-button"
+            @click="changeCount"
+          >
+            OK
+          </button>
+        </div>
+      </div>
+    </template>
   </div>
 </template>
 

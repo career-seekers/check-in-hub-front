@@ -19,12 +19,9 @@ export default defineComponent({
     },
   },
   data() {
-    const participationResolver = new ParticipantResolver();
-    const isMobile = useDevice().isMobile;
-
     return {
-      participationResolver,
-      isMobile,
+      participantResolver: new ParticipantResolver(),
+      isMobile: useDevice(),
       participants: [] as ParticipantResponseDto[],
       searchQuery: "",
     }
@@ -35,21 +32,24 @@ export default defineComponent({
     }
   },
   async mounted() {
-    const response = await this.participationResolver.getAll();
-    if (typeof (response as ErrorResponseDto).msg === "undefined") {
-      this.participants = (response as ParticipantResponseDto[])
-        .filter(p => p.event.id === Number(this.eventId))
-        .sort((a, b) => a.name.localeCompare(b.name))
-    }
+    await this.fetchParticipants()
   },
   methods: {
+    async fetchParticipants() {
+      const response = await this.participantResolver.getAll();
+      if (typeof (response as ErrorResponseDto).msg === "undefined") {
+        this.participants = (response as ParticipantResponseDto[])
+          .filter(p => p.event.id === Number(this.eventId))
+          .sort((a, b) => a.name.localeCompare(b.name))
+      }
+    },
     async change(id: number, checked: boolean) {
       const updatedData: UpdateParticipantDto = {
         id: id,
         presence: checked,
       }
 
-      await this.participationResolver.update(updatedData);
+      await this.participantResolver.update(updatedData);
     },
     async changeCount(id: number, count: number) {
       const updatedData: UpdateParticipantDto = {
@@ -57,9 +57,8 @@ export default defineComponent({
         count: count
       }
 
-      await this.participationResolver.update(updatedData).then(() => {
-        window.location.reload();
-      });
+      await this.participantResolver.update(updatedData)
+      await this.fetchParticipants()
     }
   }
 })
@@ -102,8 +101,8 @@ export default defineComponent({
       class="wrapper"
     >
       <ParticipantItem
-        v-for="(participant, index) in participationList"
-        :key="index"
+        v-for="participant in participationList"
+        :key="participant.id"
         class="item"
         :is-here="participant.presence"
         :count="participant.count == null ? 0 : participant.count"

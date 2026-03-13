@@ -15,7 +15,7 @@ export default defineConfig({
       'check-in.career-seekers.ru',
     ],
     host: '0.0.0.0',
-    port: 5273,
+    port: 5173,
     hmr: {
       host: 'check-in.career-seekers.ru',
       protocol: 'wss',

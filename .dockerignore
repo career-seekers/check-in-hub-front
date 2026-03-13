@@ -1,0 +1,6 @@
+*.conf.ts
+*.conf.js
+
+node_modules
+.github
+.idea

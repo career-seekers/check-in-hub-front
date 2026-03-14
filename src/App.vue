@@ -27,13 +27,16 @@
     [Attendance.ABSENT]: Attendance.NOT_STATED
   };
 
-  const records = ref<RecordResponseDto[]>([]);
+
   const totalRecords = ref<number>(0);
   const params = ref<RecordFiltersParamsDto>({
     page: 0,
-    size: 20
+    size: 20,
+    sort: "id,asc"
   })
+  const records = ref<RecordResponseDto[]>(Array(params.value.size).fill({}));
   const isLoading = ref<boolean>(false);
+  const isPending = ref<boolean>(false);
 
   const filters = ref({
     flow: { value: undefined, matchMode: FilterMatchMode.EQUALS },
@@ -65,20 +68,20 @@
   };
 
   const onSort = (event: DataTableSortEvent) => {
-    const currentSort = params.value.sort || '';
-    const sortFields = currentSort ? currentSort.split(',') : [];
-
-    let newSortFields: string[];
-
-    if (sortFields.includes(event.sortField as string)) {
-      newSortFields = sortFields.filter(f => f !== event.sortField);
-    } else {
-      newSortFields = [...sortFields, event.sortField as string];
+    if (!event.sortField) {
+      params.value = {
+        ...params.value,
+        sort: "id,asc",
+        page: 0
+      };
+      return;
     }
+
+    const order = event.sortOrder === 1 ? 'asc' : 'desc';
 
     params.value = {
       ...params.value,
-      sort: newSortFields.length > 0 ? newSortFields.join(',') : undefined,
+      sort: `${event.sortField},${order}`,
       page: 0
     };
   }
@@ -95,14 +98,16 @@
   }
 
   const updateAttendance = async (id: number, oldAttendance: Attendance | undefined) => {
+    isPending.value = true;
     const attendance = nextAttendance[oldAttendance ?? Attendance.NOT_STATED]
-    const response = await recordResolver.update({ id, attendance })
+    const response = await recordResolver.notice(id, attendance)
     if (typeof response.message !== "string") {
       records.value = records.value.map((r) => (r.id === id ? {
         ...r,
         attendance: attendance,
       } : r))
     }
+    isPending.value = false;
   }
 
   const debouncedFilter = debounce((callback: () => void) => {
@@ -142,18 +147,17 @@
       filter-display="menu"
       table-style="table-layout: fixed; width: 100%; height: 70vh"
       scrollable
-      scroll-height="70vh"
+      scroll-height="70.5vh"
+      :removable-sort="true"
       :rows-per-page-options="[10, 20, 30]"
       :total-records="totalRecords"
+      :loading="isPending"
       lazy
       @page="onPageChange"
       @sort="onSort"
     >
       <template #empty>
-        No customers found.
-      </template>
-      <template #loading>
-        Loading customers data. Please wait.
+        Записи не найдены
       </template>
       <Column
         field="flow"
@@ -164,10 +168,13 @@
         :filter-menu-style="{ width: '15rem' }"
       >
         <template #body="{ data }">
-          <div style="height: 1.5rem">
-            <Skeleton v-if="isLoading" />
-            <span v-else>{{ FlowLabels.find(l => l.value === data.flow)?.label }}</span>
-          </div>
+          <Skeleton v-if="isLoading" />
+          <span 
+            v-else
+            style="display: flex; align-items: center"
+          >
+            {{ FlowLabels.find(l => l.value === data.flow)?.label }}
+          </span>
         </template>
         <template #filter="{ filterModel, filterCallback }">
           <Select
@@ -192,7 +199,12 @@
       >
         <template #body="{ data }">
           <Skeleton v-if="isLoading " />
-          <span v-else>{{ data.username }}</span>
+          <span
+            v-else
+            style="display: flex; align-items: center"
+          >
+            {{ data.username }}
+          </span>
         </template>
         <template #filter="{ filterModel, filterCallback }">
           <div style="display: flex; justify-content: space-between; gap: 0.5rem; height: 100%">
@@ -226,7 +238,12 @@
       >
         <template #body="{ data }">
           <Skeleton v-if="isLoading " />
-          <span v-else>{{ data.competitionName }}</span>
+          <span
+            v-else
+            style="display: flex; align-items: center"
+          >
+            {{ data.competitionName }}
+          </span>
         </template>
         <template #filter="{ filterModel, filterCallback }">
           <div style="display: flex; justify-content: space-between; gap: 0.5rem; height: 100%">
@@ -258,7 +275,12 @@
       >
         <template #body="{ data }">
           <Skeleton v-if="isLoading " />
-          <span v-else>{{ AgeCategoryLabels.find(c => c.value === data.ageCategory)?.label }}</span>
+          <span
+            v-else
+            style="display: flex; align-items: center"
+          >
+            {{ AgeCategoryLabels.find(c => c.value === data.ageCategory)?.label }}
+          </span>
         </template>
         <template #filter="{ filterModel, filterCallback }">
           <Select
@@ -330,14 +352,6 @@
     height: auto;
   }
 
-  .p-datatable-tbody > tr {
-    height: 1px;
-  }
-
-  .p-datatable-tbody > tr > td {
-    height: auto;
-    vertical-align: top;
-  }
 
   .logo, .logo > img {
     height: 7rem;

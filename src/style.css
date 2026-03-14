@@ -78,9 +78,9 @@ p {
 }
 
 .p-datatable .p-datatable-thead > tr > th {
-  background-color: #dd7c38 !important;
+  background-color: #f5970b !important;
   color: white !important;
-  border-color: #f1793b !important;
+  border-color: #d88601 !important;
 }
 
 .p-datatable .p-datatable-thead > tr > th .p-column-header-content {

@@ -362,7 +362,7 @@
 
 
   .logo, .logo > img {
-    height: 7rem;
+    height: 6rem;
     margin-bottom: 2rem;
   }
 

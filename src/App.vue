@@ -2,16 +2,18 @@
 
   import { FilterMatchMode } from '@primevue/core/api';
   import type { DataTableSortEvent } from "primevue";
-  import { onMounted, ref, watch } from "vue";
+  import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 
   import type { PaginationResponseDto } from "@/api/dto/pagination/pagination-response.dto";
   import type { RecordFiltersParamsDto } from "@/api/dto/record/record-filters-params.dto";
   import type { RecordResponseDto } from "@/api/dto/record/record-response.dto";
+  import apiConf from "@/api/api.conf";
   import { RecordResolver } from "@/api/resolvers/record.resolver";
   import { AgeCategoryLabels } from "@/shared/enums/age-categories.enum";
   import { Attendance, AttendanceLabels } from "@/shared/enums/attendance";
   import { FlowLabels } from "@/shared/enums/flows.enum";
   import { debounce } from "@/utils/debounce.util";
+  import { socketService } from "@/utils/websocket-resolver.util";
 
   const getAttendanceSeverity = (attendance: Attendance) => {
     switch (attendance) {
@@ -124,9 +126,17 @@
   }, { deep: true });
 
   onMounted(async () => {
+    socketService.connect("notifications", apiConf.socketNotificationsEndpoint, log);
     await fetchRecords();
   })
 
+function log(msg: string): void {
+  console.log(msg);
+}
+
+onBeforeUnmount(() => {
+  socketService.disconnect("notifications");
+})
 </script>
 
 <template>

@@ -53,6 +53,7 @@
   const updateParamsFromFilters = () => {
     params.value = {
       ...params.value,
+      page: 0,
       flow: filters.value.flow.value,
       username: filters.value.username.value,
       competitionName: filters.value.competitionName.value,

@@ -5,7 +5,7 @@ import axios, {
 } from "axios";
 
 import apiConf from "@/api/api.conf";
-import type { ErrorResponseDto } from "@/api/dto/error/error-response.dto";
+import type { GenericResponseDto } from "@/api/dto/generic-response.dto";
 
 interface RequestConfig<T> extends AxiosRequestConfig {
   data?: T;
@@ -18,32 +18,35 @@ class Resolver {
     this.endpoint = endpoint;
   }
 
-  async request<U, S>(
+  async request<U, S, T = Record<string, unknown>>(
     url: string,
     method: string,
     data?: U,
+    params?: T,
     responseType?: AxiosResponse["request"]["responseType"],
-  ): Promise<S | ErrorResponseDto> {
-    const fullUrl = `${apiConf.endpoint}/${this.endpoint}${url ? `/${url}` : ""}`;
+  ): Promise<GenericResponseDto<S>> {
+    const fullUrl = `${apiConf.endpoint}/api/v1/${this.endpoint}${url ? `/${url}` : ""}`;
 
     const config: RequestConfig<U> = {
       url: fullUrl,
       method,
       data,
+      params,
       responseType: (responseType || "json") as never,
     };
 
     try {
-      const response: AxiosResponse<S> = await axios(config);
+      const response: AxiosResponse<GenericResponseDto<S>> = await axios(config);
       return response.data;
     } catch (error: unknown) {
       if (isAxiosError(error)) {
         return {
-          msg: error.response?.data.msg
+          message: error.response?.data.msg
             ? error.response.data.msg
             : error.response?.data
               ? error.response?.data
-              : "Network Error"
+              : "Network Error",
+          status: 500
         };
       }
       if (error instanceof Error) {

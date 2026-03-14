@@ -3,16 +3,12 @@
 
 <template>
   <div class="app-container">
-    <router-link
-      class="logo"
-      to="/"
-    >
+    <div class="logo">
       <img
         src="./assets/logo.png"
         alt="Логотип"
       >
-    </router-link>
-    <router-view />
+    </div>
   </div>
 </template>
 

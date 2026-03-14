@@ -1,6 +1,7 @@
 import type { PaginationResponseDto } from "@/api/dto/pagination/pagination-response.dto";
 import type { RecordFiltersParamsDto } from "@/api/dto/record/record-filters-params.dto";
 import type { RecordResponseDto } from "@/api/dto/record/record-response.dto";
+import type { RecordUpdateDto } from "@/api/dto/record/record-update.dto";
 import Resolver from "@/api/resolvers/resolver";
 
 export class RecordResolver {
@@ -16,6 +17,17 @@ export class RecordResolver {
       "GET",
       null,
       params
+    )
+  }
+
+  public async update(data: RecordUpdateDto) {
+    return await this.apiResolver.request<
+      RecordUpdateDto,
+      RecordResponseDto | string
+    >(
+      data.id.toString(),
+      "PATCH",
+      data
     )
   }
 }

@@ -11,8 +11,12 @@
   import { AttendanceLabels } from "@/shared/enums/attendance";
   import { FlowLabels } from "@/shared/enums/flows.enum";
 
-  const records = ref<RecordResponseDto[]>(new Array(10).fill({}));
-  const params = ref<RecordFiltersParamsDto>({})
+  const records = ref<RecordResponseDto[]>([]);
+  const totalRecords = ref<number>(0);
+  const params = ref<RecordFiltersParamsDto>({
+    page: 0,
+    size: 20
+  })
   const isLoading = ref<boolean>(false);
 
   const filters = ref({
@@ -32,23 +36,35 @@
       username: filters.value.username.value,
       competitionName: filters.value.competitionName.value,
       ageCategory: filters.value.ageCategory.value,
-      attendance: filters.value.attendance.value,
-      page: 0
+      attendance: filters.value.attendance.value
+    };
+  };
+
+  const onPageChange = (event: { page: number, rows: number }) => {
+    params.value = {
+      ...params.value,
+      page: event.page,
+      size: event.rows
     };
   };
 
   const fetchRecords = async () => {
     isLoading.value = true;
     const response = await recordResolver.getAll(params.value)
-    const recordsResponse = (response.message as PaginationResponseDto<RecordResponseDto[]>).content
-    if (typeof recordsResponse !== "undefined") {
-      records.value = recordsResponse
+    const recordsResponse = (response.message as PaginationResponseDto<RecordResponseDto[]>)
+    if (typeof recordsResponse.content !== "undefined") {
+      records.value = recordsResponse.content
+      totalRecords.value = recordsResponse.totalElements
     }
     isLoading.value = false;
   }
 
   watch(filters, () => {
     updateParamsFromFilters();
+    fetchRecords();
+  }, { deep: true });
+
+  watch(() => [params.value.page, params.value.size], () => {
     fetchRecords();
   }, { deep: true });
 
@@ -70,12 +86,21 @@
     <DataTable
       v-model:filters="filters"
       :value="records"
-      :rows="10"
+      :rows="params.size"
       paginator
       show-gridlines
       :global-filter-fields="['flow', 'username', 'competitionName', 'ageCategory', 'attendance']"
       filter-display="menu"
-      table-style="table-layout: fixed; width: 100%;"
+      table-style="table-layout: fixed; width: 100%; height: 70vh"
+      scrollable
+      scroll-height="70vh"
+      :rows-per-page-options="[10, 20, 30]"
+      :total-records="totalRecords"
+      lazy
+      @page="(event) => {
+        console.log('Page event:', event);
+        onPageChange(event);
+      }"
     >
       <template #empty>
         No customers found.
@@ -240,6 +265,19 @@
 
   .p-datatable {
     width: 100%;
+  }
+
+  .p-datatable-tbody {
+    height: auto;
+  }
+
+  .p-datatable-tbody > tr {
+    height: 1px;
+  }
+
+  .p-datatable-tbody > tr > td {
+    height: auto;
+    vertical-align: top;
   }
 
   .logo, .logo > img {

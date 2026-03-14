@@ -29,7 +29,10 @@ const mainPreset = definePreset(Aura, {
 createApp(App)
   .use(PrimeVue, {
     theme: {
-      preset: mainPreset
+      preset: mainPreset,
+      options: {
+        darkModeSelector: false
+      }
     },
     locale: {
       apply: "Применить",

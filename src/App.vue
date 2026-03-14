@@ -137,201 +137,203 @@
         alt="Логотип"
       >
     </div>
-    <DataTable
-      v-model:filters="filters"
-      :value="records"
-      :rows="params.size"
-      paginator
-      show-gridlines
-      :global-filter-fields="['flow', 'username', 'competitionName', 'ageCategory', 'attendance']"
-      filter-display="menu"
-      table-style="table-layout: fixed; width: 100%; height: 70vh"
-      scrollable
-      scroll-height="70.5vh"
-      :removable-sort="true"
-      :rows-per-page-options="[10, 20, 30]"
-      :total-records="totalRecords"
-      :loading="isPending"
-      lazy
-      @page="onPageChange"
-      @sort="onSort"
-    >
-      <template #empty>
-        Записи не найдены
-      </template>
-      <Column
-        field="flow"
-        header="№ Потока"
-        style="width: 13%"
-        :sortable="true"
-        :show-filter-match-modes="false"
-        :filter-menu-style="{ width: '15rem' }"
+    <div class="table-wrapper">
+      <DataTable
+        v-model:filters="filters"
+        :value="records"
+        :rows="params.size"
+        paginator
+        show-gridlines
+        :global-filter-fields="['flow', 'username', 'competitionName', 'ageCategory', 'attendance']"
+        filter-display="menu"
+        table-style="table-layout: fixed; width: 100%; height: 70vh"
+        scrollable
+        scroll-height="70.5vh"
+        :removable-sort="true"
+        :rows-per-page-options="[10, 20, 30]"
+        :total-records="totalRecords"
+        :loading="isPending"
+        lazy
+        @page="onPageChange"
+        @sort="onSort"
       >
-        <template #body="{ data }">
-          <Skeleton v-if="isLoading" />
-          <span 
-            v-else
-            style="display: flex; align-items: center"
-          >
-            {{ FlowLabels.find(l => l.value === data.flow)?.label }}
-          </span>
+        <template #empty>
+          Записи не найдены
         </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <Select
-            v-model="filterModel.value"
-            placeholder="Выберите из списка"
-            style="width: 100%"
-            :options="FlowLabels"
-            option-label="label"
-            option-value="value"
-            show-clear
-            @change="filterCallback()"
-          />
-        </template>
-        <template #filterapply />
-        <template #filterclear />
-      </Column>
-      <Column
-        field="username"
-        header="ФИО"
-        :sortable="true"
-        :show-filter-match-modes="false"
-      >
-        <template #body="{ data }">
-          <Skeleton v-if="isLoading " />
-          <span
-            v-else
-            style="display: flex; align-items: center"
-          >
-            {{ data.username }}
-          </span>
-        </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <div style="display: flex; justify-content: space-between; gap: 0.5rem; height: 100%">
-            <InputText
+        <Column
+          field="flow"
+          header="№ Потока"
+          style="width: 13%"
+          :sortable="true"
+          :show-filter-match-modes="false"
+          :filter-menu-style="{ width: '15rem' }"
+        >
+          <template #body="{ data }">
+            <Skeleton v-if="isLoading" />
+            <span
+              v-else
+              style="display: flex; align-items: center"
+            >
+              {{ FlowLabels.find(l => l.value === data.flow)?.label }}
+            </span>
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <Select
               v-model="filterModel.value"
-              type="text"
-              placeholder="Поиск по ФИО"
-              @input="debouncedFilter(filterCallback)"
+              placeholder="Выберите из списка"
+              style="width: 100%"
+              :options="FlowLabels"
+              option-label="label"
+              option-value="value"
+              show-clear
+              @change="filterCallback()"
             />
-            <Button
-              icon="pi pi-times"
-              severity="secondary"
-              aria-label="clear"
-              @click="() => {
-                filterModel.value = undefined
-                filterCallback()
-              }"
-            />
-          </div>
-        </template>
-        <template #filterapply />
-        <template #filterclear />
-      </Column>
-      <Column
-        field="competitionName"
-        header="Компетенция"
-        :sortable="true"
-        :show-filter-match-modes="false"
-        :show-clear-button="false"
-        :show-apply-button="false"
-      >
-        <template #body="{ data }">
-          <Skeleton v-if="isLoading " />
-          <span
-            v-else
-            style="display: flex; align-items: center"
-          >
-            {{ data.competitionName }}
-          </span>
-        </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <div style="display: flex; justify-content: space-between; gap: 0.5rem; height: 100%">
-            <InputText
+          </template>
+          <template #filterapply />
+          <template #filterclear />
+        </Column>
+        <Column
+          field="username"
+          header="ФИО"
+          :sortable="true"
+          :show-filter-match-modes="false"
+        >
+          <template #body="{ data }">
+            <Skeleton v-if="isLoading " />
+            <span
+              v-else
+              style="display: flex; align-items: center"
+            >
+              {{ data.username }}
+            </span>
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <div style="display: flex; justify-content: space-between; gap: 0.5rem; height: 100%">
+              <InputText
+                v-model="filterModel.value"
+                type="text"
+                placeholder="Поиск по ФИО"
+                @input="debouncedFilter(filterCallback)"
+              />
+              <Button
+                icon="pi pi-times"
+                severity="secondary"
+                aria-label="clear"
+                @click="() => {
+                  filterModel.value = undefined
+                  filterCallback()
+                }"
+              />
+            </div>
+          </template>
+          <template #filterapply />
+          <template #filterclear />
+        </Column>
+        <Column
+          field="competitionName"
+          header="Компетенция"
+          :sortable="true"
+          :show-filter-match-modes="false"
+          :show-clear-button="false"
+          :show-apply-button="false"
+        >
+          <template #body="{ data }">
+            <Skeleton v-if="isLoading " />
+            <span
+              v-else
+              style="display: flex; align-items: center"
+            >
+              {{ data.competitionName }}
+            </span>
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <div style="display: flex; justify-content: space-between; gap: 0.5rem; height: 100%">
+              <InputText
+                v-model="filterModel.value"
+                type="text"
+                placeholder="Поиск по компетенции"
+                @input="debouncedFilter(filterCallback)"
+              />
+              <Button
+                icon="pi pi-times"
+                severity="secondary"
+                aria-label="clear"
+                @click="() => {
+                  filterModel.value = undefined
+                  filterCallback()
+                }"
+              />
+            </div>
+          </template>
+        </Column>
+        <Column
+          field="ageCategory"
+          header="Возрастная группа"
+          style="width: 17%"
+          :sortable="true"
+          :show-filter-match-modes="false"
+          :filter-menu-style="{ width: '15rem' }"
+        >
+          <template #body="{ data }">
+            <Skeleton v-if="isLoading " />
+            <span
+              v-else
+              style="display: flex; align-items: center"
+            >
+              {{ AgeCategoryLabels.find(c => c.value === data.ageCategory)?.label }}
+            </span>
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <Select
               v-model="filterModel.value"
-              type="text"
-              placeholder="Поиск по компетенции"
-              @input="debouncedFilter(filterCallback)"
+              placeholder="Выберите из списка"
+              style="width: 100%"
+              :options="AgeCategoryLabels"
+              option-label="label"
+              option-value="value"
+              show-clear
+              @change="filterCallback()"
             />
+          </template>
+          <template #filterapply />
+          <template #filterclear />
+        </Column>
+        <Column
+          field="attendance"
+          header="Статус"
+          style="width: 14%"
+          :sortable="true"
+          :show-filter-match-modes="false"
+          :filter-menu-style="{ width: '15rem' }"
+        >
+          <template #body="{ data }">
+            <Skeleton v-if="isLoading " />
             <Button
-              icon="pi pi-times"
-              severity="secondary"
-              aria-label="clear"
-              @click="() => {
-                filterModel.value = undefined
-                filterCallback()
-              }"
+              v-else
+              outlined
+              style="width: 100%"
+              :severity="getAttendanceSeverity(data.attendance)"
+              :label="AttendanceLabels.find(a => a.value === data.attendance)?.label"
+              @click="updateAttendance(data.id, data.attendance)"
             />
-          </div>
-        </template>
-      </Column>
-      <Column
-        field="ageCategory"
-        header="Возрастная группа"
-        style="width: 14%"
-        :sortable="true"
-        :show-filter-match-modes="false"
-        :filter-menu-style="{ width: '15rem' }"
-      >
-        <template #body="{ data }">
-          <Skeleton v-if="isLoading " />
-          <span
-            v-else
-            style="display: flex; align-items: center"
-          >
-            {{ AgeCategoryLabels.find(c => c.value === data.ageCategory)?.label }}
-          </span>
-        </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <Select
-            v-model="filterModel.value"
-            placeholder="Выберите из списка"
-            style="width: 100%"
-            :options="AgeCategoryLabels"
-            option-label="label"
-            option-value="value"
-            show-clear
-            @change="filterCallback()"
-          />
-        </template>
-        <template #filterapply />
-        <template #filterclear />
-      </Column>
-      <Column
-        field="attendance"
-        header="Статус"
-        style="width: 14%"
-        :sortable="true"
-        :show-filter-match-modes="false"
-        :filter-menu-style="{ width: '15rem' }"
-      >
-        <template #body="{ data }">
-          <Skeleton v-if="isLoading " />
-          <Button
-            v-else
-            outlined
-            style="width: 100%"
-            :severity="getAttendanceSeverity(data.attendance)"
-            :label="AttendanceLabels.find(a => a.value === data.attendance)?.label"
-            @click="updateAttendance(data.id, data.attendance)"
-          />
-        </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <Select
-            v-model="filterModel.value"
-            placeholder="Выберите из списка"
-            style="width: 100%"
-            :options="AttendanceLabels"
-            option-label="label"
-            option-value="value"
-            show-clear
-            @change="filterCallback()"
-          />
-        </template>
-        <template #filterapply />
-        <template #filterclear />
-      </Column>
-    </DataTable>
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <Select
+              v-model="filterModel.value"
+              placeholder="Выберите из списка"
+              style="width: 100%"
+              :options="AttendanceLabels"
+              option-label="label"
+              option-value="value"
+              show-clear
+              @change="filterCallback()"
+            />
+          </template>
+          <template #filterapply />
+          <template #filterclear />
+        </Column>
+      </DataTable>
+    </div>
   </div>
 </template>
 
@@ -342,6 +344,12 @@
     align-items: center;
     justify-content: flex-start;
     padding: 2rem;
+  }
+
+  .table-wrapper {
+    border-top-right-radius: 15px;
+    border-top-left-radius: 15px;
+    overflow: hidden;
   }
 
   .p-datatable {

@@ -10,6 +10,7 @@
   import { AgeCategoryLabels } from "@/shared/enums/age-categories.enum";
   import { AttendanceLabels } from "@/shared/enums/attendance";
   import { FlowLabels } from "@/shared/enums/flows.enum";
+  import { debounce } from "@/utils/debounce.util";
 
   const records = ref<RecordResponseDto[]>([]);
   const totalRecords = ref<number>(0);
@@ -58,6 +59,10 @@
     }
     isLoading.value = false;
   }
+
+  const debouncedFilter = debounce((callback: () => void) => {
+    callback();
+  }, 500);
 
   watch(filters, () => {
     updateParamsFromFilters();
@@ -151,14 +156,14 @@
               v-model="filterModel.value"
               type="text"
               placeholder="Поиск по ФИО"
-              @input="filterCallback()"
+              @input="debouncedFilter(filterCallback)"
             />
             <Button
               icon="pi pi-times"
               severity="secondary"
               aria-label="clear"
               @click="() => {
-                filterModel.value = ''
+                filterModel.value = undefined
                 filterCallback()
               }"
             />
@@ -184,14 +189,14 @@
               v-model="filterModel.value"
               type="text"
               placeholder="Поиск по компетенции"
-              @input="filterCallback()"
+              @input="debouncedFilter(filterCallback)"
             />
             <Button
               icon="pi pi-times"
               severity="secondary"
               aria-label="clear"
               @click="() => {
-                filterModel.value = ''
+                filterModel.value = undefined
                 filterCallback()
               }"
             />

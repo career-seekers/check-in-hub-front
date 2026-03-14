@@ -1,4 +1,22 @@
 <script setup lang="ts">
+
+import { onBeforeUnmount, onMounted } from "vue";
+
+import apiConf from "@/api/api.conf";
+import { socketService } from "@/utils/websocket-resolver.util";
+
+function log(msg: string): void {
+  console.log(msg);
+}
+
+onMounted(() => {
+  socketService.connect("notifications", apiConf.socketNotificationsEndpoint, log);
+})
+
+onBeforeUnmount(() => {
+  socketService.disconnect("notifications");
+})
+
 </script>
 
 <template>

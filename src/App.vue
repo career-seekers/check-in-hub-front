@@ -1,6 +1,7 @@
 <script setup lang="ts">
 
   import { FilterMatchMode } from '@primevue/core/api';
+  import type { DataTableSortEvent } from "primevue";
   import { onMounted, ref, watch } from "vue";
 
   import type { PaginationResponseDto } from "@/api/dto/pagination/pagination-response.dto";
@@ -62,6 +63,25 @@
       size: event.rows
     };
   };
+
+  const onSort = (event: DataTableSortEvent) => {
+    const currentSort = params.value.sort || '';
+    const sortFields = currentSort ? currentSort.split(',') : [];
+
+    let newSortFields: string[];
+
+    if (sortFields.includes(event.sortField as string)) {
+      newSortFields = sortFields.filter(f => f !== event.sortField);
+    } else {
+      newSortFields = [...sortFields, event.sortField as string];
+    }
+
+    params.value = {
+      ...params.value,
+      sort: newSortFields.length > 0 ? newSortFields.join(',') : undefined,
+      page: 0
+    };
+  }
 
   const fetchRecords = async () => {
     isLoading.value = true;
@@ -126,10 +146,8 @@
       :rows-per-page-options="[10, 20, 30]"
       :total-records="totalRecords"
       lazy
-      @page="(event) => {
-        console.log('Page event:', event);
-        onPageChange(event);
-      }"
+      @page="onPageChange"
+      @sort="onSort"
     >
       <template #empty>
         No customers found.
@@ -141,6 +159,7 @@
         field="flow"
         header="№ Потока"
         style="width: 13%"
+        :sortable="true"
         :show-filter-match-modes="false"
         :filter-menu-style="{ width: '15rem' }"
       >
@@ -168,6 +187,7 @@
       <Column
         field="username"
         header="ФИО"
+        :sortable="true"
         :show-filter-match-modes="false"
       >
         <template #body="{ data }">
@@ -199,6 +219,7 @@
       <Column
         field="competitionName"
         header="Компетенция"
+        :sortable="true"
         :show-filter-match-modes="false"
         :show-clear-button="false"
         :show-apply-button="false"
@@ -230,7 +251,8 @@
       <Column
         field="ageCategory"
         header="Возрастная группа"
-        style="width: 11%"
+        style="width: 14%"
+        :sortable="true"
         :show-filter-match-modes="false"
         :filter-menu-style="{ width: '15rem' }"
       >
@@ -257,6 +279,7 @@
         field="attendance"
         header="Статус"
         style="width: 14%"
+        :sortable="true"
         :show-filter-match-modes="false"
         :filter-menu-style="{ width: '15rem' }"
       >

@@ -17,6 +17,7 @@ declare module 'vue' {
     Dropdown: typeof import('primevue/dropdown')['default']
     InputText: typeof import('primevue/inputtext')['default']
     Select: typeof import('primevue/select')['default']
+    SelectButton: typeof import('primevue/selectbutton')['default']
     Skeleton: typeof import('primevue/skeleton')['default']
   }
 }

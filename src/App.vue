@@ -8,9 +8,23 @@
   import type { RecordResponseDto } from "@/api/dto/record/record-response.dto";
   import { RecordResolver } from "@/api/resolvers/record.resolver";
   import { AgeCategoryLabels } from "@/shared/enums/age-categories.enum";
-  import { AttendanceLabels } from "@/shared/enums/attendance";
+  import { Attendance, AttendanceLabels } from "@/shared/enums/attendance";
   import { FlowLabels } from "@/shared/enums/flows.enum";
   import { debounce } from "@/utils/debounce.util";
+
+  const getAttendanceSeverity = (attendance: Attendance) => {
+    switch (attendance) {
+      case Attendance.NOT_STATED: return "secondary";
+      case Attendance.PRESENT: return "success";
+      case Attendance.ABSENT: return "danger";
+    }
+  };
+
+  const nextAttendance: Record<Attendance, Attendance> = {
+    [Attendance.NOT_STATED]: Attendance.PRESENT,
+    [Attendance.PRESENT]: Attendance.ABSENT,
+    [Attendance.ABSENT]: Attendance.NOT_STATED
+  };
 
   const records = ref<RecordResponseDto[]>([]);
   const totalRecords = ref<number>(0);
@@ -60,6 +74,17 @@
     isLoading.value = false;
   }
 
+  const updateAttendance = async (id: number, oldAttendance: Attendance | undefined) => {
+    const attendance = nextAttendance[oldAttendance ?? Attendance.NOT_STATED]
+    const response = await recordResolver.update({ id, attendance })
+    if (typeof response.message !== "string") {
+      records.value = records.value.map((r) => (r.id === id ? {
+        ...r,
+        attendance: attendance,
+      } : r))
+    }
+  }
+
   const debouncedFilter = debounce((callback: () => void) => {
     callback();
   }, 500);
@@ -76,7 +101,6 @@
   onMounted(async () => {
     await fetchRecords();
   })
-
 
 </script>
 
@@ -238,7 +262,14 @@
       >
         <template #body="{ data }">
           <Skeleton v-if="isLoading " />
-          <span v-else>{{ AttendanceLabels.find(a => a.value === data.attendance)?.label }}</span>
+          <Button
+            v-else
+            outlined
+            style="width: 100%"
+            :severity="getAttendanceSeverity(data.attendance)"
+            :label="AttendanceLabels.find(a => a.value === data.attendance)?.label"
+            @click="updateAttendance(data.id, data.attendance)"
+          />
         </template>
         <template #filter="{ filterModel, filterCallback }">
           <Select

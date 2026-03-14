@@ -1,8 +1,10 @@
-export enum Flow {
-  FIRST = "FIRST",
-  SECOND = "SECOND",
-  THIRD = "THIRD",
-}
+export const Flow = {
+  FIRST: "FIRST",
+  SECOND: "SECOND",
+  THIRD: "THIRD"
+} as const;
+
+export type Flow = typeof Flow[keyof typeof Flow];
 
 export const FlowLabels = [
   { label: "1 (11:00-13:00)", value: Flow.FIRST },

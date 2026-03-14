@@ -4,13 +4,13 @@
   import type { DataTableSortEvent } from "primevue";
   import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 
+  import apiConf from "@/api/api.conf";
   import type { PaginationResponseDto } from "@/api/dto/pagination/pagination-response.dto";
   import type { RecordFiltersParamsDto } from "@/api/dto/record/record-filters-params.dto";
   import type { RecordResponseDto } from "@/api/dto/record/record-response.dto";
-  import apiConf from "@/api/api.conf";
   import { RecordResolver } from "@/api/resolvers/record.resolver";
   import { AgeCategoryLabels } from "@/shared/enums/age-categories.enum";
-  import { Attendance, AttendanceLabels } from "@/shared/enums/attendance";
+  import { Attendance, AttendanceLabels } from "@/shared/enums/attendance.enum";
   import { FlowLabels } from "@/shared/enums/flows.enum";
   import { debounce } from "@/utils/debounce.util";
   import { socketService } from "@/utils/websocket-resolver.util";
@@ -91,8 +91,8 @@
   const fetchRecords = async () => {
     isLoading.value = true;
     const response = await recordResolver.getAll(params.value)
-    const recordsResponse = (response.message as PaginationResponseDto<RecordResponseDto[]>)
-    if (typeof recordsResponse.content !== "undefined") {
+    if (typeof response.message !== "string") {
+      const recordsResponse = (response.message as PaginationResponseDto<RecordResponseDto[]>)
       records.value = recordsResponse.content
       totalRecords.value = recordsResponse.totalElements
     }
@@ -130,13 +130,13 @@
     await fetchRecords();
   })
 
-function log(msg: string): void {
-  console.log(msg);
-}
-
-onBeforeUnmount(() => {
-  socketService.disconnect("notifications");
-})
+  function log(msg: string): void {
+    console.log(msg);
+  }
+  
+  onBeforeUnmount(() => {
+    socketService.disconnect("notifications");
+  })
 </script>
 
 <template>

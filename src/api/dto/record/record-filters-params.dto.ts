@@ -1,5 +1,5 @@
 import type { AgeCategory } from "@/shared/enums/age-categories.enum";
-import type { Attendance } from "@/shared/enums/attendance";
+import type { Attendance } from "@/shared/enums/attendance.enum";
 import type { Flow } from "@/shared/enums/flows.enum";
 
 export interface RecordFiltersParamsDto {

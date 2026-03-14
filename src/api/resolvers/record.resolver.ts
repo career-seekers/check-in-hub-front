@@ -3,7 +3,7 @@ import type { RecordFiltersParamsDto } from "@/api/dto/record/record-filters-par
 import type { RecordResponseDto } from "@/api/dto/record/record-response.dto";
 import type { RecordUpdateDto } from "@/api/dto/record/record-update.dto";
 import Resolver from "@/api/resolvers/resolver";
-import type { Attendance } from "@/shared/enums/attendance";
+import type { Attendance } from "@/shared/enums/attendance.enum";
 
 export class RecordResolver {
   private apiResolver = new Resolver("records")
@@ -35,11 +35,13 @@ export class RecordResolver {
   public async notice(id: number, attendance: Attendance) {
     return await this.apiResolver.request<
       null,
-      RecordResponseDto | string
+      RecordResponseDto | string,
+      { id: number, attendance: Attendance }
     >(
-      `notice?id=${id.toString()}&attendance=${attendance}`,
+      'notice',
       "PATCH",
-      null
+      null,
+      { id, attendance }
     )
   }
 }

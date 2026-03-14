@@ -41,11 +41,9 @@ class Resolver {
     } catch (error: unknown) {
       if (isAxiosError(error)) {
         return {
-          message: error.response?.data.msg
-            ? error.response.data.msg
-            : error.response?.data
-              ? error.response?.data
-              : "Network Error",
+          message: error.response?.data
+            ? error.response.data
+            : "Network Error",
           status: 500
         };
       }

@@ -9,7 +9,7 @@ export class RecordResolver {
   public async getAll(params: RecordFiltersParamsDto) {
     return await this.apiResolver.request<
       null,
-      PaginationResponseDto<RecordResponseDto> | string,
+      PaginationResponseDto<RecordResponseDto[]> | string,
       RecordFiltersParamsDto
     >(
       "",

@@ -13,5 +13,6 @@ declare module 'vue' {
   export interface GlobalComponents {
     Column: typeof import('primevue/column')['default']
     DataTable: typeof import('primevue/datatable')['default']
+    Skeleton: typeof import('primevue/skeleton')['default']
   }
 }

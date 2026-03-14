@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
   import { FilterMatchMode } from '@primevue/core/api';
-  import { onMounted, ref } from "vue";
+  import { onMounted, ref, watch } from "vue";
 
   import type { PaginationResponseDto } from "@/api/dto/pagination/pagination-response.dto";
   import type { RecordFiltersParamsDto } from "@/api/dto/record/record-filters-params.dto";
@@ -11,23 +11,31 @@
   import { AttendanceLabels } from "@/shared/enums/attendance";
   import { FlowLabels } from "@/shared/enums/flows.enum";
 
-
   const records = ref<RecordResponseDto[]>(new Array(10).fill({}));
   const params = ref<RecordFiltersParamsDto>({})
   const isLoading = ref<boolean>(false);
 
   const filters = ref({
-    flow: { value: null, matchMode: FilterMatchMode.EQUALS },
-    username: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    competitionName: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    ageCategory: { value: null, matchMode: FilterMatchMode.EQUALS },
-    attendance: { value: null, matchMode: FilterMatchMode.EQUALS }
+    flow: { value: undefined, matchMode: FilterMatchMode.EQUALS },
+    username: { value: undefined, matchMode: FilterMatchMode.CONTAINS },
+    competitionName: { value: undefined, matchMode: FilterMatchMode.CONTAINS },
+    ageCategory: { value: undefined, matchMode: FilterMatchMode.EQUALS },
+    attendance: { value: undefined, matchMode: FilterMatchMode.EQUALS }
   });
 
   const recordResolver = new RecordResolver()
-  onMounted(async () => {
-    await fetchRecords();
-  })
+
+  const updateParamsFromFilters = () => {
+    params.value = {
+      ...params.value,
+      flow: filters.value.flow.value,
+      username: filters.value.username.value,
+      competitionName: filters.value.competitionName.value,
+      ageCategory: filters.value.ageCategory.value,
+      attendance: filters.value.attendance.value,
+      page: 0
+    };
+  };
 
   const fetchRecords = async () => {
     isLoading.value = true;
@@ -38,6 +46,16 @@
     }
     isLoading.value = false;
   }
+
+  watch(filters, () => {
+    updateParamsFromFilters();
+    fetchRecords();
+  }, { deep: true });
+
+  onMounted(async () => {
+    await fetchRecords();
+  })
+
 
 </script>
 
@@ -97,20 +115,29 @@
         field="username"
         header="ФИО"
         :show-filter-match-modes="false"
-        :filter-menu-style="{ width: '15rem' }"
       >
         <template #body="{ data }">
           <Skeleton v-if="isLoading " />
           <span v-else>{{ data.username }}</span>
         </template>
         <template #filter="{ filterModel, filterCallback }">
-          <InputText
-            v-model="filterModel.value"
-            style="width: 100%"
-            type="text"
-            placeholder="Поиск по ФИО"
-            @change="filterCallback()"
-          />
+          <div style="display: flex; justify-content: space-between; gap: 0.5rem; height: 100%">
+            <InputText
+              v-model="filterModel.value"
+              type="text"
+              placeholder="Поиск по ФИО"
+              @input="filterCallback()"
+            />
+            <Button
+              icon="pi pi-times"
+              severity="secondary"
+              aria-label="clear"
+              @click="() => {
+                filterModel.value = ''
+                filterCallback()
+              }"
+            />
+          </div>
         </template>
         <template #filterapply />
         <template #filterclear />

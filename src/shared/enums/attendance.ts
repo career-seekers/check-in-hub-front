@@ -4,8 +4,8 @@ export enum Attendance {
   ABSENT = "ABSENT"
 }
 
-export const AttendanceLabels: Record<Attendance, string> = {
-  [Attendance.NOT_STATED]: "Не указано",
-  [Attendance.PRESENT]: "Присутствует",
-  [Attendance.ABSENT]: "Отсутствует"
-}
+export const AttendanceLabels = [
+  { label: "Не указано", value: Attendance.NOT_STATED },
+  { label: "Присутствует", value: Attendance.PRESENT },
+  { label: "Отсутствует", value: Attendance.ABSENT },
+]

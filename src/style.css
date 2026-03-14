@@ -85,6 +85,7 @@ p {
 
 #app {
   width: 90vw;
+  height: 100vh;
   max-width: 100%;
   margin: 0 auto;
   text-align: center;
@@ -92,5 +93,6 @@ p {
   min-height: 100svh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   box-sizing: border-box;
 }

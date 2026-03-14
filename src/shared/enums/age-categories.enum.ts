@@ -4,8 +4,8 @@ export enum AgeCategory {
   SCHOOL_3 = "SCHOOL_3",
 }
 
-export const AgeCategoryLabels: Record<AgeCategory, string> = {
-  [AgeCategory.SCHOOL_1]: "7-8 лет",
-  [AgeCategory.SCHOOL_2]: "9-11 лет",
-  [AgeCategory.SCHOOL_3]: "12-13 лет"
-}
+export const AgeCategoryLabels = [
+  { label: "7-8 лет", value: AgeCategory.SCHOOL_1 },
+  { label: "9-11 лет", value: AgeCategory.SCHOOL_2 },
+  { label: "12-13 лет", value: AgeCategory.SCHOOL_3 },
+]

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 
+  import { FilterMatchMode } from '@primevue/core/api';
   import { onMounted, ref } from "vue";
 
   import type { PaginationResponseDto } from "@/api/dto/pagination/pagination-response.dto";
@@ -10,9 +11,18 @@
   import { AttendanceLabels } from "@/shared/enums/attendance";
   import { FlowLabels } from "@/shared/enums/flows.enum";
 
+
   const records = ref<RecordResponseDto[]>(new Array(10).fill({}));
   const params = ref<RecordFiltersParamsDto>({})
   const isLoading = ref<boolean>(false);
+
+  const filters = ref({
+    flow: { value: null, matchMode: FilterMatchMode.EQUALS },
+    username: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    competitionName: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    ageCategory: { value: null, matchMode: FilterMatchMode.EQUALS },
+    attendance: { value: null, matchMode: FilterMatchMode.EQUALS }
+  });
 
   const recordResolver = new RecordResolver()
   onMounted(async () => {
@@ -44,49 +54,129 @@
       :rows="10"
       paginator
       show-gridlines
+      :filters="filters"
+      filter-display="menu"
       table-style="table-layout: fixed; width: 100%;"
     >
+      <template #empty>
+        No customers found.
+      </template>
+      <template #loading>
+        Loading customers data. Please wait.
+      </template>
       <Column
+        field="flow"
         header="№ Потока"
         style="width: 13%"
+        :show-filter-match-modes="false"
+        :filter-menu-style="{ width: '15rem' }"
       >
         <template #body="{ data }">
-          <Skeleton v-if="isLoading " />
-          <span v-else>{{ FlowLabels[data.flow as never] }}</span>
+          <div style="height: 1.5rem">
+            <Skeleton v-if="isLoading" />
+            <span v-else>{{ FlowLabels.find(l => l.value === data.flow)?.label }}</span>
+          </div>
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <Select
+            v-model="filterModel.value"
+            placeholder="Выберите из списка"
+            style="width: 100%"
+            :options="FlowLabels"
+            option-label="label"
+            option-value="value"
+            show-clear
+            @change="filterCallback()"
+          />
         </template>
       </Column>
       <Column
+        field="username"
         header="ФИО"
+        :show-filter-match-modes="false"
+        :filter-menu-style="{ width: '15rem' }"
       >
         <template #body="{ data }">
           <Skeleton v-if="isLoading " />
           <span v-else>{{ data.username }}</span>
         </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText
+            v-model="filterModel.value"
+            style="width: 100%"
+            type="text"
+            placeholder="Поиск по ФИО"
+            @change="filterCallback()"
+          />
+        </template>
       </Column>
       <Column
+        field="competitionName"
         header="Компетенция"
+        :show-filter-match-modes="false"
+        :filter-menu-style="{ width: '15rem' }"
       >
         <template #body="{ data }">
           <Skeleton v-if="isLoading " />
           <span v-else>{{ data.competitionName }}</span>
         </template>
-      </Column>
-      <Column
-        header="Возрастная группа"
-        style="width: 11%"
-      >
-        <template #body="{ data }">
-          <Skeleton v-if="isLoading " />
-          <span v-else>{{ AgeCategoryLabels[data.ageCategory as never] }}</span>
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText
+            v-model="filterModel.value"
+            style="width: 100%"
+            type="text"
+            placeholder="Поиск по компетенции"
+            show-clear
+            @change="filterCallback()"
+          />
         </template>
       </Column>
       <Column
-        header="Статус"
-        style="width: 14%"
+        field="ageCategory"
+        header="Возрастная группа"
+        style="width: 11%"
+        :show-filter-match-modes="false"
+        :filter-menu-style="{ width: '15rem' }"
       >
         <template #body="{ data }">
           <Skeleton v-if="isLoading " />
-          <span v-else>{{ AttendanceLabels[data.attendance as never] }}</span>
+          <span v-else>{{ AgeCategoryLabels.find(c => c.value === data.ageCategory)?.label }}</span>
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <Select
+            v-model="filterModel.value"
+            placeholder="Выберите из списка"
+            style="width: 100%"
+            :options="AgeCategoryLabels"
+            option-label="label"
+            option-value="value"
+            show-clear
+            @change="filterCallback()"
+          />
+        </template>
+      </Column>
+      <Column
+        field="attendance"
+        header="Статус"
+        style="width: 14%"
+        :show-filter-match-modes="false"
+        :filter-menu-style="{ width: '15rem' }"
+      >
+        <template #body="{ data }">
+          <Skeleton v-if="isLoading " />
+          <span v-else>{{ AttendanceLabels.find(a => a.value === data.attendance)?.label }}</span>
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <Select
+            v-model="filterModel.value"
+            placeholder="Выберите из списка"
+            style="width: 100%"
+            :options="AttendanceLabels"
+            option-label="label"
+            option-value="value"
+            show-clear
+            @change="filterCallback()"
+          />
         </template>
       </Column>
     </DataTable>

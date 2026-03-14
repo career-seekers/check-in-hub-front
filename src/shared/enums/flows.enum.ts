@@ -4,8 +4,8 @@ export enum Flow {
   THIRD = "THIRD",
 }
 
-export const FlowLabels: Record<Flow, string> = {
-  [Flow.FIRST]: "1 (11:00-13:00)",
-  [Flow.SECOND]: "2 (14:00-16:00)",
-  [Flow.THIRD]: "3 (17:00-19:00)"
-}
+export const FlowLabels = [
+  { label: "1 (11:00-13:00)", value: Flow.FIRST },
+  { label: "2 (14:00-16:00)", value: Flow.SECOND },
+  { label: "3 (17:00-19:00)", value: Flow.THIRD },
+]

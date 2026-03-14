@@ -10,6 +10,10 @@ createApp(App)
   .use(PrimeVue, {
     theme: {
       preset: Aura
+    },
+    locale: {
+      apply: "Применить",
+      clear: "Очистить"
     }
   })
   .mount('#app')

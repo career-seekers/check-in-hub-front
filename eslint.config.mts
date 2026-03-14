@@ -11,6 +11,7 @@ export default [
     ignores: [
       'dist/**',
       'node_modules/**',
+      'components.d.ts',
       '*.config.ts',
       '*.config.js',
       '.vscode/**',
@@ -81,6 +82,11 @@ export default [
         varsIgnorePattern: '^_'
       }],
       'object-curly-spacing': ['error', 'always'],
+      'vue/script-indent': ['error', 2, {
+        'baseIndent': 1,
+        'switchCase': 1,
+        'ignores': []
+      }]
     }
   },
 

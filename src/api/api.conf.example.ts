@@ -1,6 +1,6 @@
 const apiConf = {
   endpoint: "",
-  socketNotificationsEndpoint: "",
+  socketNotificationsEndpoint: ""
 }
 
 export default apiConf;

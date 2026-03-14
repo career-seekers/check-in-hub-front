@@ -50,11 +50,12 @@
       >
     </div>
     <DataTable
+      v-model:filters="filters"
       :value="records"
       :rows="10"
       paginator
       show-gridlines
-      :filters="filters"
+      :global-filter-fields="['flow', 'username', 'competitionName', 'ageCategory', 'attendance']"
       filter-display="menu"
       table-style="table-layout: fixed; width: 100%;"
     >
@@ -89,6 +90,8 @@
             @change="filterCallback()"
           />
         </template>
+        <template #filterapply />
+        <template #filterclear />
       </Column>
       <Column
         field="username"
@@ -109,26 +112,38 @@
             @change="filterCallback()"
           />
         </template>
+        <template #filterapply />
+        <template #filterclear />
       </Column>
       <Column
         field="competitionName"
         header="Компетенция"
         :show-filter-match-modes="false"
-        :filter-menu-style="{ width: '15rem' }"
+        :show-clear-button="false"
+        :show-apply-button="false"
       >
         <template #body="{ data }">
           <Skeleton v-if="isLoading " />
           <span v-else>{{ data.competitionName }}</span>
         </template>
         <template #filter="{ filterModel, filterCallback }">
-          <InputText
-            v-model="filterModel.value"
-            style="width: 100%"
-            type="text"
-            placeholder="Поиск по компетенции"
-            show-clear
-            @change="filterCallback()"
-          />
+          <div style="display: flex; justify-content: space-between; gap: 0.5rem; height: 100%">
+            <InputText
+              v-model="filterModel.value"
+              type="text"
+              placeholder="Поиск по компетенции"
+              @input="filterCallback()"
+            />
+            <Button
+              icon="pi pi-times"
+              severity="secondary"
+              aria-label="clear"
+              @click="() => {
+                filterModel.value = ''
+                filterCallback()
+              }"
+            />
+          </div>
         </template>
       </Column>
       <Column
@@ -154,6 +169,8 @@
             @change="filterCallback()"
           />
         </template>
+        <template #filterapply />
+        <template #filterclear />
       </Column>
       <Column
         field="attendance"
@@ -178,6 +195,8 @@
             @change="filterCallback()"
           />
         </template>
+        <template #filterapply />
+        <template #filterclear />
       </Column>
     </DataTable>
   </div>

@@ -3,6 +3,7 @@ import PrimeVue from 'primevue/config'
 import { createApp } from 'vue'
 
 import './style.css'
+import 'primeicons/primeicons.css'
 
 import App from './App.vue'
 

@@ -104,7 +104,7 @@
 
   const debouncedFilter = debounce((callback: () => void) => {
     callback();
-  }, 500);
+  }, 250);
 
   watch(filters, () => {
     updateParamsFromFilters();

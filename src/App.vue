@@ -8,27 +8,13 @@
   import type { PaginationResponseDto } from "@/api/dto/pagination/pagination-response.dto";
   import type { RecordFiltersParamsDto } from "@/api/dto/record/record-filters-params.dto";
   import type { RecordResponseDto } from "@/api/dto/record/record-response.dto";
+  import type { UpdateNotificationDto } from "@/api/dto/socket/update-notification.dto";
   import { RecordResolver } from "@/api/resolvers/record.resolver";
   import { AgeCategoryLabels } from "@/shared/enums/age-categories.enum";
   import { Attendance, AttendanceLabels } from "@/shared/enums/attendance.enum";
   import { FlowLabels } from "@/shared/enums/flows.enum";
   import { debounce } from "@/utils/debounce.util";
   import { socketService } from "@/utils/websocket-resolver.util";
-
-  const getAttendanceSeverity = (attendance: Attendance) => {
-    switch (attendance) {
-      case Attendance.NOT_STATED: return "secondary";
-      case Attendance.PRESENT: return "success";
-      case Attendance.ABSENT: return "danger";
-    }
-  };
-
-  const nextAttendance: Record<Attendance, Attendance> = {
-    [Attendance.NOT_STATED]: Attendance.PRESENT,
-    [Attendance.PRESENT]: Attendance.ABSENT,
-    [Attendance.ABSENT]: Attendance.NOT_STATED
-  };
-
 
   const totalRecords = ref<number>(0);
   const params = ref<RecordFiltersParamsDto>({
@@ -100,22 +86,27 @@
     isLoading.value = false;
   }
 
-  const updateAttendance = async (id: number, oldAttendance: Attendance | undefined) => {
+  const updateAttendance = async (id: number, newAttendance: Attendance) => {
     isPending.value = true;
-    const attendance = nextAttendance[oldAttendance ?? Attendance.NOT_STATED]
-    const response = await recordResolver.notice(id, attendance)
-    if (typeof response.message !== "string") {
-      records.value = records.value.map((r) => (r.id === id ? {
-        ...r,
-        attendance: attendance,
-      } : r))
+
+    if (newAttendance === records.value.find(r => r.id === id)?.attendance) {
+      isPending.value = false;
+      return;
     }
+
+    const response = await recordResolver.notice(id, newAttendance)
+    if (typeof response.message !== "string") {
+      records.value = records.value.map((r) =>
+        r.id === id ? { ...r, attendance: newAttendance } : r
+      );
+    }
+
     isPending.value = false;
   }
 
   const debouncedFilter = debounce((callback: () => void) => {
     callback();
-  }, 500);
+  }, 250);
 
   watch(filters, () => {
     updateParamsFromFilters();
@@ -127,14 +118,23 @@
   }, { deep: true });
 
   onMounted(async () => {
-    socketService.connect("notifications", apiConf.socketNotificationsEndpoint, log);
+    socketService.connect("notifications", apiConf.socketNotificationsEndpoint, reactiveAttendanceUpdate);
     await fetchRecords();
   })
 
-  function log(msg: string): void {
-    console.log(msg);
+  function reactiveAttendanceUpdate(msg: string): void {
+    try {
+      const notification = JSON.parse(msg) as UpdateNotificationDto;
+      const recordToUpdate = records.value.find(record => record.id === notification.id);
+
+      if (recordToUpdate) {
+        recordToUpdate.attendance = notification.status;
+      }
+    } catch (error) {
+      console.error('Ошибка парсинга уведомления:', error);
+    }
   }
-  
+
   onBeforeUnmount(() => {
     socketService.disconnect("notifications");
   })
@@ -156,7 +156,7 @@
         paginator
         show-gridlines
         :global-filter-fields="['flow', 'username', 'competitionName', 'ageCategory', 'attendance']"
-        filter-display="menu"
+        filter-display="row"
         table-style="table-layout: fixed; width: 100%; height: 70vh"
         scrollable
         scroll-height="70.5vh"
@@ -228,7 +228,7 @@
               />
               <Button
                 icon="pi pi-times"
-                severity="secondary"
+                severity="danger"
                 aria-label="clear"
                 @click="() => {
                   filterModel.value = undefined
@@ -267,7 +267,7 @@
               />
               <Button
                 icon="pi pi-times"
-                severity="secondary"
+                severity="danger"
                 aria-label="clear"
                 @click="() => {
                   filterModel.value = undefined
@@ -319,13 +319,18 @@
         >
           <template #body="{ data }">
             <Skeleton v-if="isLoading " />
-            <Button
+            <Select
               v-else
-              outlined
               style="width: 100%"
-              :severity="getAttendanceSeverity(data.attendance)"
-              :label="AttendanceLabels.find(a => a.value === data.attendance)?.label"
-              @click="updateAttendance(data.id, data.attendance)"
+              :options="AttendanceLabels"
+              option-label="label"
+              option-value="value"
+              :model-value="data.attendance"
+              :class="{
+                'present-attendance': data.attendance === Attendance.PRESENT,
+                'absent-attendance': data.attendance === Attendance.ABSENT
+              }"
+              @update:model-value="newAttendance => updateAttendance(data.id, newAttendance)"
             />
           </template>
           <template #filter="{ filterModel, filterCallback }">
@@ -349,35 +354,49 @@
 </template>
 
 <style>
-  .app-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 2rem;
-  }
+.app-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 2rem;
+}
 
-  .table-wrapper {
-    border-top-right-radius: 15px;
-    border-top-left-radius: 15px;
-    overflow: hidden;
-  }
+.table-wrapper {
+  border-top-right-radius: 15px;
+  border-top-left-radius: 15px;
+  overflow: hidden;
+}
 
-  .p-datatable {
-    width: 100%;
-  }
+.p-datatable {
+  width: 100%;
+}
 
-  .p-datatable-tbody {
-    height: auto;
-  }
+.p-datatable-tbody {
+  height: auto;
+}
 
 
-  .logo, .logo > img {
-    height: 6rem;
-    margin-bottom: 2rem;
-  }
+.logo, .logo > img {
+  height: 6rem;
+  margin-bottom: 2rem;
+}
 
-  .logo:hover {
-    cursor: pointer;
-  }
+.logo:hover {
+  cursor: pointer;
+}
+
+.present-attendance {
+  background-color: #e6ffed !important;
+  border: 1px solid #b3f0bc !important;
+}
+
+.absent-attendance {
+  background-color: #ffe6e6 !important;
+  border: 1px solid #ffb3b3 !important;
+}
+
+.p-datatable-column-filter-button {
+  display: none !important;
+}
 </style>

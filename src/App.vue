@@ -15,21 +15,6 @@
   import { debounce } from "@/utils/debounce.util";
   import { socketService } from "@/utils/websocket-resolver.util";
 
-  const getAttendanceSeverity = (attendance: Attendance) => {
-    switch (attendance) {
-      case Attendance.NOT_STATED: return "secondary";
-      case Attendance.PRESENT: return "success";
-      case Attendance.ABSENT: return "danger";
-    }
-  };
-
-  const nextAttendance: Record<Attendance, Attendance> = {
-    [Attendance.NOT_STATED]: Attendance.PRESENT,
-    [Attendance.PRESENT]: Attendance.ABSENT,
-    [Attendance.ABSENT]: Attendance.NOT_STATED
-  };
-
-
   const totalRecords = ref<number>(0);
   const params = ref<RecordFiltersParamsDto>({
     page: 0,
@@ -99,16 +84,21 @@
     isLoading.value = false;
   }
 
-  const updateAttendance = async (id: number, oldAttendance: Attendance | undefined) => {
+  const updateAttendance = async (id: number, newAttendance: Attendance) => {
     isPending.value = true;
-    const attendance = nextAttendance[oldAttendance ?? Attendance.NOT_STATED]
-    const response = await recordResolver.notice(id, attendance)
-    if (typeof response.message !== "string") {
-      records.value = records.value.map((r) => (r.id === id ? {
-        ...r,
-        attendance: attendance,
-      } : r))
+
+    if (newAttendance === records.value.find(r => r.id === id)?.attendance) {
+      isPending.value = false;
+      return;
     }
+
+    const response = await recordResolver.notice(id, newAttendance)
+    if (typeof response.message !== "string") {
+      records.value = records.value.map((r) =>
+        r.id === id ? { ...r, attendance: newAttendance } : r
+      );
+    }
+
     isPending.value = false;
   }
 
@@ -318,13 +308,18 @@
         >
           <template #body="{ data }">
             <Skeleton v-if="isLoading " />
-            <Button
+            <Select 
               v-else
-              outlined
               style="width: 100%"
-              :severity="getAttendanceSeverity(data.attendance)"
-              :label="AttendanceLabels.find(a => a.value === data.attendance)?.label"
-              @click="updateAttendance(data.id, data.attendance)"
+              :options="AttendanceLabels"
+              option-label="label"
+              option-value="value"
+              :model-value="data.attendance"
+              :class="{
+                'present-attendance': data.attendance === Attendance.PRESENT,
+                'absent-attendance': data.attendance === Attendance.ABSENT
+              }"
+              @update:model-value="newAttendance => updateAttendance(data.id, newAttendance)"
             />
           </template>
           <template #filter="{ filterModel, filterCallback }">
@@ -378,5 +373,15 @@
 
   .logo:hover {
     cursor: pointer;
+  }
+
+  .present-attendance {
+    background-color: #e6ffed !important;
+    border: 1px solid #b3f0bc !important;
+  }
+
+  .absent-attendance {
+    background-color: #ffe6e6 !important;
+    border: 1px solid #ffb3b3 !important;
   }
 </style>

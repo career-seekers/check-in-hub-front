@@ -8,6 +8,7 @@
   import type { PaginationResponseDto } from "@/api/dto/pagination/pagination-response.dto";
   import type { RecordFiltersParamsDto } from "@/api/dto/record/record-filters-params.dto";
   import type { RecordResponseDto } from "@/api/dto/record/record-response.dto";
+  import type { UpdateNotificationDto } from "@/api/dto/socket/update-notification.dto";
   import { RecordResolver } from "@/api/resolvers/record.resolver";
   import { AgeCategoryLabels } from "@/shared/enums/age-categories.enum";
   import { Attendance, AttendanceLabels } from "@/shared/enums/attendance.enum";
@@ -116,12 +117,21 @@
   }, { deep: true });
 
   onMounted(async () => {
-    socketService.connect("notifications", apiConf.socketNotificationsEndpoint, log);
+    socketService.connect("notifications", apiConf.socketNotificationsEndpoint, reactiveAttendanceUpdate);
     await fetchRecords();
   })
 
-  function log(msg: string): void {
-    console.log(msg);
+  function reactiveAttendanceUpdate(msg: string): void {
+    try {
+      const notification = JSON.parse(msg) as UpdateNotificationDto;
+      const recordToUpdate = records.value.find(record => record.id === notification.id);
+
+      if (recordToUpdate) {
+        recordToUpdate.attendance = notification.status;
+      }
+    } catch (error) {
+      console.error('Ошибка парсинга уведомления:', error);
+    }
   }
 
   onBeforeUnmount(() => {

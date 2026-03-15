@@ -169,7 +169,9 @@
         @sort="onSort"
       >
         <template #empty>
-          Записи не найдены
+          <div class="empty-message">
+            Записи не найдены
+          </div>
         </template>
         <Column
           field="flow"
@@ -398,5 +400,26 @@
 
 .p-datatable-column-filter-button {
   display: none !important;
+}
+
+.table-wrapper {
+  border-top-right-radius: 15px;
+  border-top-left-radius: 15px;
+  overflow: hidden;
+}
+
+.has-data .p-datatable {
+  height: 70.5vh !important;
+}
+
+.empty-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 15rem;
+  padding: 2rem;
+  font-weight: 700;
+  font-size: 1.5rem;
+  border-radius: 8px;
 }
 </style>

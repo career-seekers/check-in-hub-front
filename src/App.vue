@@ -123,7 +123,7 @@
   function log(msg: string): void {
     console.log(msg);
   }
-  
+
   onBeforeUnmount(() => {
     socketService.disconnect("notifications");
   })
@@ -145,7 +145,7 @@
         paginator
         show-gridlines
         :global-filter-fields="['flow', 'username', 'competitionName', 'ageCategory', 'attendance']"
-        filter-display="menu"
+        filter-display="row"
         table-style="table-layout: fixed; width: 100%; height: 70vh"
         scrollable
         scroll-height="70.5vh"
@@ -217,7 +217,7 @@
               />
               <Button
                 icon="pi pi-times"
-                severity="secondary"
+                severity="danger"
                 aria-label="clear"
                 @click="() => {
                   filterModel.value = undefined
@@ -256,7 +256,7 @@
               />
               <Button
                 icon="pi pi-times"
-                severity="secondary"
+                severity="danger"
                 aria-label="clear"
                 @click="() => {
                   filterModel.value = undefined
@@ -308,7 +308,7 @@
         >
           <template #body="{ data }">
             <Skeleton v-if="isLoading " />
-            <Select 
+            <Select
               v-else
               style="width: 100%"
               :options="AttendanceLabels"
@@ -343,45 +343,49 @@
 </template>
 
 <style>
-  .app-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 2rem;
-  }
+.app-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 2rem;
+}
 
-  .table-wrapper {
-    border-top-right-radius: 15px;
-    border-top-left-radius: 15px;
-    overflow: hidden;
-  }
+.table-wrapper {
+  border-top-right-radius: 15px;
+  border-top-left-radius: 15px;
+  overflow: hidden;
+}
 
-  .p-datatable {
-    width: 100%;
-  }
+.p-datatable {
+  width: 100%;
+}
 
-  .p-datatable-tbody {
-    height: auto;
-  }
+.p-datatable-tbody {
+  height: auto;
+}
 
 
-  .logo, .logo > img {
-    height: 6rem;
-    margin-bottom: 2rem;
-  }
+.logo, .logo > img {
+  height: 6rem;
+  margin-bottom: 2rem;
+}
 
-  .logo:hover {
-    cursor: pointer;
-  }
+.logo:hover {
+  cursor: pointer;
+}
 
-  .present-attendance {
-    background-color: #e6ffed !important;
-    border: 1px solid #b3f0bc !important;
-  }
+.present-attendance {
+  background-color: #e6ffed !important;
+  border: 1px solid #b3f0bc !important;
+}
 
-  .absent-attendance {
-    background-color: #ffe6e6 !important;
-    border: 1px solid #ffb3b3 !important;
-  }
+.absent-attendance {
+  background-color: #ffe6e6 !important;
+  border: 1px solid #ffb3b3 !important;
+}
+
+.p-datatable-column-filter-button {
+  display: none !important;
+}
 </style>
